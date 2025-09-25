@@ -1,13 +1,33 @@
-import { Stack } from "expo-router";
+import { Stack, useGlobalSearchParams } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+
+import { setupErrorLogging } from "utils/errorLogger";
+
+const STORAGE_KEY = "emulated_device";
 
 export default function RootLayout() {
+  const { emulate } = useGlobalSearchParams<{ emulate?: string }>();
+
+  useEffect(() => {
+    // Set up global error logging
+
+    setupErrorLogging();
+  }, [emulate]);
+
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen options={{ animation: "slide_from_bottom" }} />
-      <Stack.Screen
-        name="(tabs)"
-        options={{ animation: "slide_from_bottom" }}
-      />
-    </Stack>
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1 }}>
+        <StatusBar style="dark" />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: "default",
+          }}
+        />
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
