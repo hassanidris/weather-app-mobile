@@ -138,7 +138,7 @@ export default function CityDetailsScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={commonStyles.title}>{weatherData.city}</Text>
+        {/* <Text style={commonStyles.title}>{weatherData.city}</Text> */}
       </View>
 
       <View style={{ paddingHorizontal: 20, paddingVertical: 20 }}>
@@ -149,6 +149,7 @@ export default function CityDetailsScreen() {
             { alignItems: "center", marginBottom: 20 },
           ]}
         >
+          <Text style={commonStyles.title}>{weatherData.city}</Text>
           <WeatherIcon
             condition={weatherData.condition}
             iconCode={weatherData.icon}

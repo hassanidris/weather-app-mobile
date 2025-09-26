@@ -116,7 +116,7 @@ export class WeatherService {
   private static mapToWeatherData(json: any, city: string): WeatherData {
     try {
       const temperature =
-        typeof json.main?.temp === "number" ? json.main.temp.toFixed(0) : 20;
+        typeof json.main?.temp === "number" ? Math.round(json.main.temp) : 20;
       const condition =
         json.weather && json.weather[0] && json.weather[0].main
           ? json.weather[0].main
@@ -195,22 +195,29 @@ export class WeatherService {
     const tomorrowForecast: ForecastItem[] = [];
 
     if (forecastJson && Array.isArray(forecastJson.list)) {
-      const now = new Date();
-      const todayStr = now.toISOString().slice(0, 10);
-      const tomorrow = new Date(now);
-      tomorrow.setDate(now.getDate() + 1);
-      const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+      // Use city timezone (seconds) with each item.dt (unix seconds) to compute local date/time
+      const timezoneOffset =
+        typeof forecastJson.city?.timezone === "number"
+          ? forecastJson.city.timezone
+          : 0;
 
       for (const item of forecastJson.list) {
-        // item.dt_txt looks like '2025-09-25 12:00:00'
-        const dtTxt: string = item.dt_txt;
-        if (!dtTxt) continue;
-        const datePart = dtTxt.split(" ")[0];
-        const timePart = dtTxt.split(" ")[1]?.slice(0, 5) || "";
+        if (typeof item.dt !== "number") continue;
+
+        const localEpoch = (item.dt + timezoneOffset) * 1000;
+        const local = new Date(localEpoch);
+
+        const year = local.getUTCFullYear();
+        const month = String(local.getUTCMonth() + 1).padStart(2, "0");
+        const day = String(local.getUTCDate()).padStart(2, "0");
+        const datePart = `${year}-${month}-${day}`;
+
+        const hours = String(local.getUTCHours()).padStart(2, "0");
+        const minutes = String(local.getUTCMinutes()).padStart(2, "0");
+        const timePart = `${hours}:${minutes}`;
+
         const temp =
-          typeof item.main?.temp.toFixed(0) === "number"
-            ? item.main.temp.toFixed(0)
-            : 0;
+          typeof item.main?.temp === "number" ? Math.round(item.main.temp) : 0;
         const cond =
           item.weather && item.weather[0] && item.weather[0].main
             ? item.weather[0].main
@@ -222,10 +229,17 @@ export class WeatherService {
 
         const forecastItem: ForecastItem = {
           hour: timePart,
-          temperature: temp.toFixed(0) as unknown as number,
+          temperature: temp,
           condition: cond,
           icon,
         };
+
+        // compute today's/tomorrow's dates according to local time
+        const nowLocal = new Date(Date.now() + timezoneOffset * 1000);
+        const todayStr = nowLocal.toISOString().slice(0, 10);
+        const tomorrow = new Date(nowLocal);
+        tomorrow.setDate(nowLocal.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().slice(0, 10);
 
         if (datePart === todayStr) {
           if (todayForecast.length < 6) todayForecast.push(forecastItem);
