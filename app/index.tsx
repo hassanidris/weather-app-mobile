@@ -22,6 +22,7 @@ const CITIES = [
   "Berlin",
   "Madrid",
   "Jeddah",
+  "Asmara",
 ];
 
 export default function HomeScreen() {
