@@ -21,6 +21,7 @@ const CITIES = [
   "London",
   "Berlin",
   "Madrid",
+  "Jeddah",
 ];
 
 export default function HomeScreen() {
@@ -37,8 +38,14 @@ export default function HomeScreen() {
       const location = await WeatherService.getCurrentLocation();
       setCurrentLocation(location);
 
-      // Get weather for all cities
-      const weatherData = await WeatherService.getCitiesWeather(CITIES);
+      // Build list with current location first, de-duplicated
+      const requestedCities = [
+        location,
+        ...CITIES.filter((c) => c !== location),
+      ];
+      const weatherData = await WeatherService.getCitiesWeather(
+        requestedCities
+      );
       setCitiesWeather(weatherData);
 
       console.log("HomeScreen: Weather data loaded successfully");
