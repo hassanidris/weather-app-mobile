@@ -133,13 +133,13 @@ export default function HomeScreen() {
       </View>
 
       {/* Instructions */}
-      <View style={commonStyles.card}>
+      {/* <View style={commonStyles.card}>
         <Text style={[commonStyles.textLight, { textAlign: "center" }]}>
           Tap on any city to view detailed weather information including current
           conditions, wind speed, humidity, and forecasts for today and
           tomorrow.
         </Text>
-      </View>
+      </View> */}
     </ScrollView>
   );
 }
